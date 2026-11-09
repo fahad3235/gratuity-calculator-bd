@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gratuity Calculator BD</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <h1 id="title">Gratuity Calculator</h1>
+    <p class="subtitle" id="subtitle">Gratuity estimate for employees in Bangladesh &mdash; fully offline</p>
+    <button id="langBtn" class="lang-btn" type="button">Bangla</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button class="tab active" id="tabbtn-calc" data-tab="calc" role="tab" type="button">Calculator</button>
+    <button class="tab" id="tabbtn-scenarios" data-tab="scenarios" role="tab" type="button">Saved scenarios</button>
+    <button class="tab" id="tabbtn-data" data-tab="data" role="tab" type="button">Data</button>
+  </nav>
+
+  <!-- ============ CALCULATOR ============ -->
+  <section id="tab-calc" class="panel" role="tabpanel">
+    <h2 id="calcHeading">Gratuity estimate</h2>
+    <form id="calcForm" novalidate>
+      <div class="grid">
+        <div class="field">
+          <label for="basicInput" id="lblBasic">Last drawn basic salary (BDT)</label>
+          <input id="basicInput" type="number" min="1" max="10000000" step="any" value="50000" inputmode="decimal">
+          <p class="err" id="err-basic" hidden></p>
+        </div>
+        <div class="field">
+          <label for="yearsInput" id="lblYears">Years of service</label>
+          <input id="yearsInput" type="number" min="0" max="60" step="1" value="10" inputmode="numeric">
+          <p class="err" id="err-years" hidden></p>
+        </div>
+        <div class="field">
+          <label for="monthsInput" id="lblMonths">Extra months of service (0&ndash;11)</label>
+          <input id="monthsInput" type="number" min="0" max="11" step="1" value="0" inputmode="numeric">
+          <p class="err" id="err-months" hidden></p>
+        </div>
+        <div class="field">
+          <label for="multiplierInput" id="lblMultiplier">Months of basic per year of service (0.5&ndash;2)</label>
+          <input id="multiplierInput" type="number" min="0.5" max="2" step="any" value="1" inputmode="decimal">
+          <p class="hint" id="multNote">Standard rule: 1 month&rsquo;s basic per completed year. Adjust only if your employer&rsquo;s rule differs.</p>
+          <p class="err" id="err-multiplier" hidden></p>
+        </div>
+        <div class="field">
+          <label for="incInput" id="lblIncrement">Annual basic increment (% &mdash; optional, for projections)</label>
+          <input id="incInput" type="number" min="0" max="20" step="any" value="0" inputmode="decimal">
+          <p class="err" id="err-incrementPct" hidden></p>
+        </div>
+        <div class="field check-field">
+          <input id="fractionalInput" type="checkbox">
+          <label for="fractionalInput" id="lblFractional">Count fractional year (pro-rata months)</label>
+        </div>
+      </div>
+      <button id="calcBtn" class="primary" type="submit">Calculate</button>
+      <p class="err" id="calcError" hidden></p>
+    </form>
+
+    <div id="results" class="results" hidden>
+      <div class="stat hero">
+        <span class="stat-label" id="resGratuityLabel">Gratuity amount</span>
+        <span class="stat-value" id="resGratuity">&mdash;</span>
+      </div>
+      <p><span class="badge eligible" id="eligBadge" hidden></span></p>
+      <div class="stat-row">
+        <div class="stat"><span class="stat-label" id="resCompletedLabel">Completed years</span><span class="stat-value" id="resCompleted">&mdash;</span></div>
+        <div class="stat"><span class="stat-label" id="resServiceLabel">Total service</span><span class="stat-value" id="resService">&mdash;</span></div>
+        <div class="stat" id="proj5Stat" hidden><span class="stat-label" id="resProj5Label">Gratuity at 5 years</span><span class="stat-value" id="resProj5">&mdash;</span></div>
+      </div>
+      <h3 id="breakdownHeading">Year-by-year accrual</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th id="colYear">Year</th><th id="colBasic">Basic used</th><th id="colAccrual">This year&rsquo;s accrual</th><th id="colCumulative">Cumulative</th></tr></thead>
+          <tbody id="breakdownBody"></tbody>
+        </table>
+      </div>
+      <h3 id="projHeading">Stay longer &mdash; projection</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th id="colExtra">Stay longer</th><th id="colFutureBasic">Future basic</th><th id="colFutureYears">Total years</th><th id="colFutureGratuity">Gratuity</th></tr></thead>
+          <tbody id="projBody"></tbody>
+        </table>
+      </div>
+      <div class="save-row">
+        <input id="saveName" type="text" maxlength="80" placeholder="Name, e.g. 10-year plan">
+        <button id="saveBtn" class="secondary" type="button">Save scenario</button>
+      </div>
+      <p class="ok" id="savedMsg" hidden>Saved.</p>
+    </div>
+
+    <p class="disclaimer" id="disclaimer">Educational estimate only &mdash; this is not an official government figure. The standard rule used here is one month&rsquo;s basic per completed year of service, payable after 5 years of continuous service. Check the real rules and rates with your employer or HR.</p>
+  </section>
+
+  <!-- ============ SCENARIOS ============ -->
+  <section id="tab-scenarios" class="panel" role="tabpanel" hidden>
+    <h2 id="histHeading">Saved scenarios</h2>
+    <p class="empty" id="histEmpty">No scenarios saved yet.</p>
+    <ul class="hist-list" id="histList"></ul>
+    <p class="ok" id="deletedMsg" hidden>Deleted.</p>
+  </section>
+
+  <!-- ============ DATA ============ -->
+  <section id="tab-data" class="panel" role="tabpanel" hidden>
+    <h2 id="dataHeading">Export / import / erase data</h2>
+    <div class="data-block">
+      <button id="exportBtn" class="secondary" type="button">Download JSON</button>
+      <a id="exportLink" hidden download="gratuity-calculator-bd.json">download</a>
+    </div>
+    <div class="data-block">
+      <label for="importText" id="importLabel">Import JSON</label>
+      <textarea id="importText" rows="6" placeholder="Paste JSON here&hellip;"></textarea>
+      <button id="importBtn" class="secondary" type="button">Import</button>
+      <p class="ok" id="importOk" hidden>Import successful.</p>
+      <p class="err" id="importFail" hidden></p>
+    </div>
+    <div class="data-block danger">
+      <label for="eraseInput" id="eraseLabel">Type DELETE to erase everything</label>
+      <input id="eraseInput" type="text" autocomplete="off" placeholder="DELETE">
+      <button id="eraseBtn" class="danger-btn" type="button">Erase all data</button>
+      <p class="ok" id="erasedMsg" hidden>All data erased.</p>
+      <p class="err" id="eraseWrong" hidden>Type DELETE exactly.</p>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap foot">
+  <p>gratuity-calculator-bd &middot; offline &middot; no data leaves your device</p>
+</footer>
+
+<script src="logic.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
